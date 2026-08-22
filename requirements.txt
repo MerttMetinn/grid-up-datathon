@@ -1,0 +1,11 @@
+# Grid Up Datathon — çekirdek bağımlılıklar (Python 3.11+)
+pandas>=2.0
+numpy>=1.24
+pyarrow>=14.0          # parquet cache
+lightgbm>=4.0          # ana model
+holidays>=0.100        # cal_ takvim feature'ları (TR tatilleri)
+scikit-learn>=1.3      # leak_check AUC
+
+# Görselleştirme (opsiyonel — notebook/rapor grafikleri)
+matplotlib>=3.7
+seaborn>=0.12

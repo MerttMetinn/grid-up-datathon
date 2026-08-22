@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Ham datathon verisi — büyük (~130 MB), ayrı dağıtılır (bkz. README > Kurulum)
+data/raw/*.csv
+
+# Türetilen parquet cache — data.py ilk çalıştırmada yeniden üretir
+data/processed/*.parquet
+
+# NOT: data/processed/test_history_profile.csv KASITLI tutulur —
+# recon-3 üretir, validation.py ona bağımlıdır, küçüktür.
+
+# Geçici / editör
+scratchpad/
+.DS_Store
+*.swp

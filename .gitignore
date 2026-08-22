@@ -7,7 +7,7 @@ venv/
 .ipynb_checkpoints/
 
 # Ham datathon verisi — büyük (~130 MB), ayrı dağıtılır (bkz. README > Kurulum)
-data/raw/*.csv
+# data/raw/*.csv -> tutarlılık için geri eklendi
 
 # Türetilen parquet cache — data.py ilk çalıştırmada yeniden üretir
 data/processed/*.parquet

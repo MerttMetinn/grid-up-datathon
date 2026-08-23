@@ -12,6 +12,9 @@ venv/
 # Türetilen parquet cache — data.py ilk çalıştırmada yeniden üretir
 data/processed/*.parquet
 
+# Materialize edilen dataset paketi — büyük, scripts/18 ile yeniden üretilir
+data/dataset/*.parquet
+
 # NOT: data/processed/test_history_profile.csv KASITLI tutulur —
 # recon-3 üretir, validation.py ona bağımlıdır, küçüktür.
 

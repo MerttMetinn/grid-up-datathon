@@ -19,6 +19,67 @@ from src.config import YOY_DRIFT
 
 SHRINK_K = 10          # shrinkage kuvveti (trafo sayısı cinsinden)
 RAMAZAN = [("2025-03-01", "2025-03-29"), ("2026-02-18", "2026-03-19")]
+CDD_THRESHOLD = 22.0   # soğutma derece-gün eşiği (Ege; 21–24 arası optimize edilebilir)
+HDD_THRESHOLD = 18.0
+
+_WX_CACHE = None        # türetilmiş hava feature'ları (ilce_key, tarih) indeksli
+
+
+def _weather_features() -> pd.DataFrame:
+    """weather.parquet'ten wx_ feature'larını türetir (modül-cache).
+
+    Hepsi (ilce_key, tarih) fonksiyonu — dış veri, hedeften bağımsız, fold/origin
+    bağımsız (sızıntı yok). Hareketli pencereler hedef gününden geriye bakar; hava
+    test döneminde de gözlemlendiği için test'te de doludur.
+    """
+    global _WX_CACHE
+    if _WX_CACHE is not None:
+        return _WX_CACHE
+    from src.weather import _CACHE
+    if not _CACHE.exists():
+        raise FileNotFoundError("weather.parquet yok — önce scripts/15_fetch_weather.py")
+    wx = pd.read_parquet(_CACHE).sort_values(["ilce_key", "tarih"]).copy()
+    g = wx.groupby("ilce_key", observed=True)
+    T = wx["wx_ham_temperature_2m_mean"]
+
+    wx["wx_cdd"] = (T - CDD_THRESHOLD).clip(lower=0)
+    wx["wx_cdd2"] = wx["wx_cdd"] ** 2                     # klima üstel artış
+    wx["wx_cdd3"] = wx["wx_cdd"] ** 3
+    wx["wx_hdd"] = (HDD_THRESHOLD - T).clip(lower=0)
+    wx["wx_t_mean"] = T
+    wx["wx_t_max"] = wx["wx_ham_temperature_2m_max"]
+    wx["wx_t_range"] = (wx["wx_ham_temperature_2m_max"]
+                        - wx["wx_ham_temperature_2m_min"])
+    wx["wx_apparent_max"] = wx["wx_ham_apparent_temperature_max"]
+    wx["wx_humidity"] = wx["wx_ham_relative_humidity_2m_mean"]
+    wx["wx_precip"] = wx["wx_ham_precipitation_sum"]
+    wx["wx_et0"] = wx["wx_ham_et0_fao_evapotranspiration"]
+    wx["wx_soil_moist"] = wx["wx_ham_soil_moisture_0_to_7cm_mean"]
+    wx["wx_radiation"] = wx["wx_ham_shortwave_radiation_sum"]
+
+    # hareketli pencereler (termal kütle + tarımsal su dengesi)
+    wx["wx_cdd_ma7"] = g["wx_cdd"].transform(
+        lambda s: s.rolling(7, min_periods=1).mean())
+    wx["wx_et0_sum7"] = g["wx_et0"].transform(
+        lambda s: s.rolling(7, min_periods=1).sum())
+    wx["wx_precip_30d"] = g["wx_precip"].transform(
+        lambda s: s.rolling(30, min_periods=1).sum())     # düşük = kurak = sulama
+    # "ilk sıcak gün" anomalisi: bugün vs önceki 7 gün ort (klimanın ilk açılışı)
+    prev7 = g["wx_t_mean"].transform(
+        lambda s: s.shift(1).rolling(7, min_periods=1).mean())
+    wx["wx_t_anom7"] = (T - prev7)
+
+    for c in WX_FEATURES:
+        wx[c] = wx[c].astype("float32")
+    wx["_ik"] = wx["ilce_key"].astype(str)
+    _WX_CACHE = wx.set_index(["_ik", "tarih"])[WX_FEATURES]
+    return _WX_CACHE
+
+
+WX_FEATURES = ["wx_cdd", "wx_cdd2", "wx_cdd3", "wx_hdd", "wx_t_mean", "wx_t_max",
+               "wx_t_range", "wx_apparent_max", "wx_humidity", "wx_precip",
+               "wx_et0", "wx_soil_moist", "wx_radiation", "wx_cdd_ma7",
+               "wx_et0_sum7", "wx_precip_30d", "wx_t_anom7"]
 
 
 # ---------------------------------------------------------------- yardımcılar
@@ -311,6 +372,14 @@ def build_features(df: pd.DataFrame, forecast_origin: str,
     out["seas_lag364_ratio_own"] = (seas - own_mean).astype("float32")
     out["seas_lag364_drift_adj"] = (seas + YOY_DRIFT).astype("float32")
 
+    # ================================================== wx_ (dış veri, hedef günün havası)
+    wxf = _weather_features()
+    ik = df["ilce_key"].astype(str).to_numpy()
+    ridx = pd.MultiIndex.from_arrays([ik, df["tarih"].to_numpy()])
+    for col in WX_FEATURES:
+        out[col] = pd.Series(wxf[col].reindex(ridx).to_numpy(),
+                             index=df.index, dtype="float32")
+
     return out
 
 
@@ -437,6 +506,10 @@ FEATURE_GROUPS: dict[str, list[str]] = {
             "grp_lf_nz_p25_ilce_ay", "grp_lf_nz_p75_ilce_ay"],
     "seas": ["seas_lag364_log1p", "seas_lag364_available", "seas_lag364_ratio_own",
              "seas_lag364_drift_adj"],
+    "wx": ["wx_cdd", "wx_cdd2", "wx_cdd3", "wx_hdd", "wx_t_mean", "wx_t_max",
+           "wx_t_range", "wx_apparent_max", "wx_humidity", "wx_precip",
+           "wx_et0", "wx_soil_moist", "wx_radiation", "wx_cdd_ma7",
+           "wx_et0_sum7", "wx_precip_30d", "wx_t_anom7"],
 }
 
 ALL_FEATURES = [f for grp in FEATURE_GROUPS.values() for f in grp]

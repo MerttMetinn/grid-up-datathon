@@ -21,9 +21,7 @@
 | lambda_l1 | 6.24514 | 0.012173 | 9.18031 |
 | lambda_l2 | 15.4021 | 5.44111 | 0.107324 |
 
-## Birlestirilmis (Compromise) Parametreler
-
-*Log-olcekli parametreler (learning_rate, lambda_l1, lambda_l2) icin geometrik ortalama, digerleri icin aritmetik ortalama kullanildi.*
+## Birlestirilmis Parametreler
 
 | Parametre | Deger |
 |---|---|

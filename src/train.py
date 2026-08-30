@@ -106,6 +106,7 @@ def build_origin_block(fold_train: pd.DataFrame, origin: pd.Timestamp,
             lambda t: H_map.get(t, 1) == 0).astype(bool),
         "anc_base": comp["base"], "anc_dev": comp["season_dev"],
         "anc_zero": comp["zero_adj"], "anc_is_cold": comp["is_cold_anchor"],
+        "tarih": targets["tarih"].to_numpy(),   # recency ağırlığı için hedef tarihi
     }, index=targets.index)
     return feats, meta
 

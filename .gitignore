@@ -22,3 +22,25 @@ data/dataset/*.parquet
 scratchpad/
 .DS_Store
 *.swp
+
+# Notebook yeniden uretim ciktisi (dogrulama kosusu)
+repro_out/
+smoke_out/
+
+# ---------------------------------------------------------------------------
+# Submission CSV'leri — her biri ~28 MB. Notebook DETERMINISTIK oldugu icin
+# (iki bagimsiz kosu bit duzeyinde ayni, bkz. docs/VERI_KAYNAKLARI.md) bunlar
+# yeniden uretilebilir; git'te tutmaya gerek yok.
+#
+# Istisna: final olarak secilen iki dosya depoda kalir.
+submissions/*.csv
+!submissions/sub_sp17.csv
+!submissions/sub_sp30.csv
+
+# NOT: bu kuraldan ONCE commit'lenmis ~32 submission dosyasi hala IZLENIYOR.
+# Ignore kurali yalnizca YENI dosyalari etkiler. Onlari da cikarmak icin:
+#     git rm --cached submissions/<dosya>.csv
+# (calisma dizininden silmez; .git gecmisini de kucultmez)
+
+# CatBoost calisma artigi (egitim loglari) — repoda olmamali
+catboost_info/

@@ -19,9 +19,11 @@
 # **KULLANILMAYANLAR (bilinçli olarak):**
 #
 # - ❌ **Gerçekleşmiş hava durumu verisi yok.** Open-Meteo/MGM vb. hiçbir meteoroloji
-#   arşivi bu notebook'ta okunmaz. Tahmin dönemi (Nis–Tem 2026) için gerçekleşmiş
-#   hava kullanmak *forward leak*'tir (o gün tahmin edilirken hava bilinemez) ve
-#   yarışma sahiplerince uygun görülmemiştir.
+#   arşivi bu notebook'ta okunmaz. Yarışma sahipleri dış kaynak kullanımını serbest
+#   bırakmıştır; buna rağmen kullanmama kararı **bilinçlidir**: tahmin dönemi
+#   (Nis–Tem 2026) için gerçekleşmiş hava kullanmak *forward leak*'tir — gerçek bir
+#   tahmin anında o günün sıcaklığı bilinemez, dolayısıyla modelin operasyonel
+#   değerini yansıtmaz. Ayrıca **ölçtük: katkısı ~0** (1.06483 vs 1.06525).
 # - ❌ **EPİAŞ / ŞEFFAFLIK platformu tüketim verisi yok.**
 # - ❌ Tahmin dönemine ait **hiçbir** dış ölçüm/gözlem verisi yok.
 # - ❌ Test hedefine dair hiçbir varsayım/sızıntı yok.

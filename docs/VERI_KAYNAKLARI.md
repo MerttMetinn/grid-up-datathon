@@ -35,15 +35,30 @@ Forward leak oluşturmaz.
 
 | Kaynak | Neden kullanılmadı |
 |---|---|
-| **Gerçekleşmiş hava durumu** (Open-Meteo arşivi, MGM vb.) | **Forward leak.** Nisan–Temmuz 2026 tahmin edilirken o günlerin gerçek sıcaklığı bilinemez. Yarışma sahipleri "gerçekleşmiş hava durumu verisi kullanmak uygun olmayacaktır" demiştir. |
+| **Gerçekleşmiş hava durumu** (Open-Meteo arşivi, MGM vb.) | **Forward leak.** Nisan–Temmuz 2026 tahmin edilirken o günlerin gerçek sıcaklığı bilinemez. Kullanmama kararı bize aittir (aşağıya bkz.). |
 | **EPİAŞ / Şeffaflık Platformu tüketim verisi** | Aynı gerekçe — tahmin dönemine ait gerçekleşmiş ölçüm. |
 | Tahmin dönemine ait başka herhangi bir dış gözlem | Aynı gerekçe. |
+
+### Yarışma sahiplerinin kural açıklaması ve bizim kararımız
+
+Yarışma sahipleri, forum sorusuna verdikleri yanıtta **dış kaynak kullanımının
+serbest** olduğunu, kullanılan kaynakların notebook içinde amacı ve kullanım
+biçimiyle **belirtilmesinin beklendiğini** bildirmiştir.
+
+Yani hava durumu kullanmak yasak değildir. Buna rağmen kullanmama kararımız
+**bilinçlidir ve iki gerekçesi vardır:**
+
+1. **Metodolojik.** Nisan–Temmuz 2026'yı tahmin ederken o günlerin gerçekleşmiş
+   sıcaklığı gerçek bir tahmin anında bilinemez. Bu veriyle kurulan model
+   operasyonel olarak kullanılamaz — dağıtım şirketi için değeri, ancak
+   ileriye dönük hava *tahminiyle* çalışıyorsa vardır.
+2. **Ampirik.** Ölçtük: katkısı yok.
 
 ### Şeffaflık: hava durumunu denedik, çıkardık
 
 Geliştirme sürecinde bir ara sürümde Open-Meteo arşivinden 17 hava feature'ı
-(CDD/HDD, ET0, toprak nemi, yağış, radyasyon vb.) türetildi. Sahiplerin uyarısı
-üzerine bunlar **tamamen çıkarıldı** ve leak'siz sürüm kuruldu.
+(CDD/HDD, ET0, toprak nemi, yağış, radyasyon vb.) türetildi ve sonra
+**tamamen çıkarıldı**.
 
 **Ölçülen etki: hava durumunun skora katkısı ~0.**
 
@@ -52,8 +67,9 @@ Geliştirme sürecinde bir ara sürümde Open-Meteo arşivinden 17 hava feature'
 | Hava feature'ları dahil | 1.06483 |
 | Hava feature'ları YOK (final çözümümüz) | 1.06525 |
 
-Fark 0.0004 — gürültü seviyesinde. Yani leak riskini almadan aynı yerdeyiz.
-Bu, kararın bir fedakârlık değil, doğru karar olduğunu gösteriyor.
+Fark 0.0004 — gürültü seviyesinde ve **hava içeren sürüm lehine**, yani ölçüm
+belirsizliğinin içinde. Karar bir fedakârlık değildir: aynı skoru, operasyonel
+olarak savunulabilir bir modelle alıyoruz.
 
 Hava kodu depoda `src/weather.py` ve `src/features.py` içinde tarihsel kayıt
 olarak duruyor ancak **final notebook bu modülleri hiç import etmez** — notebook
